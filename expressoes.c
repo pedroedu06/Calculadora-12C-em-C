@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 #include "expressoes.h"
 
 #define MAX_PILHA 100
@@ -12,6 +13,11 @@ typedef struct {
     char itens[MAX_PILHA][TAM_TOKEN];
     int topo;
 } PilhaString;
+
+char *topo(PilhaString *p) {
+    if (p->topo == -1) return NULL;
+    return p->itens[p->topo];
+}
 
 void inicializaPilha(PilhaString *p) {
     p->topo = -1;
@@ -27,17 +33,46 @@ void empilha(PilhaString *p, const char *str) {
     }
 }
 
-char *desempilha(PilhaString *p) {
+char* desempilha(PilhaString *p) {
     if (!pilhaVazia(p)) {
         return p->itens[p->topo--];
     }
     return NULL;
 }
 
-int ehOperador(char c) {
-    return c == '+' || c == '-' || c == '*' || c == '/';
+char topoChar(PilhaString *p) {
+    if (!pilhaVazia(p)) {
+        return p->itens[p->topo][0];
+    }
+    return 0;
 }
 
+int ehOperador(char c) {
+    return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';    
+}
+
+//precedencia dos operadores
+int precedencia(char op) {
+    if (op == '^') return 3; // Exponenciação tem a maior precedência
+    if (op == '*' || op == '/' || op == '%') return 2;
+    if (op == '+' || op == '-') return 1;
+    return 0;
+}
+
+void espacamentoParenteses(char *destino, const char *origem) {
+    while (*origem) {
+        if (*origem == '(' || *origem == ')') {
+            strcat(destino, " ");
+            strncat(destino, origem, 1);
+            strcat(destino, " ");
+        } else {
+            strncat(destino, origem, 1);
+        }
+        origem++;
+    }
+}
+
+// forma infixa
 char *getFormaInFixa(char *Str) {
     PilhaString pilha;
     inicializaPilha(&pilha);
@@ -67,6 +102,54 @@ char *getFormaInFixa(char *Str) {
         strcpy(resultado, pilha.itens[pilha.topo]);
     }
     return resultado;
+}
+
+
+//forma posfixa
+char *getFormaPosFixa(char *Str) {
+    static char saida[512];
+    saida[0] = '\0';
+
+    PilhaString operadores;
+    inicializaPilha(&operadores);
+
+    char expressaoEspacada[512] = "";
+    espacamentoParenteses(expressaoEspacada, Str); 
+
+    char *token = strtok(expressaoEspacada, " ");
+
+    while (token != NULL) {
+        if (isdigit(token[0]) || (token[0] == '-' && isdigit(token[1]))) {
+            strcat(saida, token);
+            strcat(saida, " ");
+        } else if (strcmp(token, "(") == 0) {
+            empilha(&operadores, token);
+        } else if (strcmp(token, ")") == 0) {
+            while (!pilhaVazia(&operadores) && strcmp(topo(&operadores), "(") != 0) {
+                strcat(saida, desempilha(&operadores));
+                strcat(saida, " ");
+            }
+            if (!pilhaVazia(&operadores) && strcmp(topo(&operadores), "(") == 0) {
+                desempilha(&operadores); // descarta o "("
+            }
+        } else if (ehOperador(token[0])) {
+            while (!pilhaVazia(&operadores) &&
+                   ehOperador(topo(&operadores)[0]) &&
+                   precedencia(topo(&operadores)[0]) >= precedencia(token[0])) {
+                strcat(saida, desempilha(&operadores));
+                strcat(saida, " ");
+            }
+            empilha(&operadores, token);
+        }
+        token = strtok(NULL, " ");
+    }
+
+    while (!pilhaVazia(&operadores)) {
+        strcat(saida, desempilha(&operadores));
+        strcat(saida, " ");
+    }
+
+    return saida;
 }
 
 
