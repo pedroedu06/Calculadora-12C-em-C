@@ -1,2 +1,4 @@
-Expressão infixa: 3 + (12 * 5)
-Expressão pós-fixa: 3 12 5 * + 
+Expressão infixa: cos ( 45 ) * 50 ^ 2 + 65 - 30 
+Expressão pós-fixa: 45 cos 50 2 ^ * 65 + 30 - 
+Valor: 1802.77
+Valor (Infixa): 1802.77
