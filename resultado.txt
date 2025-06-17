@@ -1,4 +1,4 @@
-Expressão infixa: cos ( 45 ) * 50 ^ 2 + 65 - 30 
-Expressão pós-fixa: 45 cos 50 2 ^ * 65 + 30 - 
-Valor: 1802.77
-Valor (Infixa): 1802.77
+Expressão infixa: sen ( 45 ) ^ 2 + 0.5 
+Expressão pós-fixa: 45 sen 2 ^ 0.5 + 
+Valor: 1.00
+Valor (Infixa): 1.00
