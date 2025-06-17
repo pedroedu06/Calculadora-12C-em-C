@@ -1,4 +1,4 @@
-Expressão infixa: sen ( 45 ) ^ 2 + 0.5 
-Expressão pós-fixa: 45 sen 2 ^ 0.5 + 
-Valor: 1.00
-Valor (Infixa): 1.00
+Expressão infixa: 3 2 4 ^ 1 + 9 - 
+Expressão pós-fixa: 3 2 4 1 ^ 9 + - 
+Valor: -11.00
+Valor (Infixa): -11.00

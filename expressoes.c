@@ -84,6 +84,25 @@ int precedencia(char *op) {
     return 0;
 }
 
+int ehInfixa(char *expr) {
+    // Pode melhorar essa função conforme seu caso, mas básico já ajuda
+    return (strchr(expr, '(') != NULL) || (strchr(expr, ')') != NULL) || 
+           (strchr(expr, '+') != NULL) || (strchr(expr, '-') != NULL) || 
+           (strchr(expr, '*') != NULL) || (strchr(expr, '/') != NULL) || 
+           (strchr(expr, '^') != NULL);
+}
+
+float calculaExpressao(char *expr) {
+    if (ehInfixa(expr)) {
+        char *posfixa = getFormaPosFixa(expr);
+        float resultado = getValorPosFixa(posfixa);
+        // Se getFormaPosFixa alocar memória, free(posfixa);
+        return resultado;
+    } else {
+        return getValorPosFixa(expr);
+    }
+}
+
 void formatarExpressao(const char *entradaBruta, char *saidaFormatada) {
     saidaFormatada[0] = '\0';  // Zera a saída
 
@@ -249,43 +268,44 @@ float getValorPosFixa(char *StrPosFixa) {
     strcpy(expressao, StrPosFixa);
 
     char *token = strtok(expressao, " ");
-    
+
     while (token != NULL) {
-        
         if (isdigit(token[0]) || (token[0] == '-' && isdigit(token[1]))) {
             empilha(&pilha, token); // número
         } else if (
-        strcmp(token, "sqrt") == 0 ||
-         strcmp(token, "sen") == 0 ||
-         strcmp(token, "cos") == 0 ||
-         strcmp(token, "tan") == 0 ||
-         strcmp(token, "log") == 0) {
+            strcmp(token, "sqrt") == 0 ||
+            strcmp(token, "sen") == 0 ||
+            strcmp(token, "cos") == 0 ||
+            strcmp(token, "tan") == 0 ||
+            strcmp(token, "log") == 0) {
 
-    char *valorStr = desempilha(&pilha);
-    float valor = atof(valorStr);
-    if (strcmp(token, "sen") == 0 || strcmp(token, "cos") == 0 || strcmp(token, "tan") == 0) {
-        valor = valor * (M_PI / 180);
-    }
-    float resultado;
+            char valorStr[64];
+            strcpy(valorStr, desempilha(&pilha));
+            float valor = atof(valorStr);
+            if (strcmp(token, "sen") == 0 || strcmp(token, "cos") == 0 || strcmp(token, "tan") == 0) {
+                valor = valor * (M_PI / 180);
+            }
 
-    if (strcmp(token, "sqrt") == 0) resultado = sqrt(valor);
-        else if (strcmp(token, "sen") == 0) resultado = sin(valor);
-        else if (strcmp(token, "cos") == 0) resultado = cos(valor);
-        else if (strcmp(token, "tan") == 0) resultado = tan(valor);
-        else if (strcmp(token, "log") == 0) resultado = log10(valor);
+            float resultado;
 
-        char resultadoStr[64];
-        sprintf(resultadoStr, "%f", resultado);
-        empilha(&pilha, resultadoStr);
-} 
-    else if (ehOperador(token[0]) && strlen(token) == 1) {
-    char *bStr = desempilha(&pilha);
-    char *aStr = desempilha(&pilha);
-    if (!aStr || !bStr) return 0; // segurança
+            if (strcmp(token, "sqrt") == 0) resultado = sqrt(valor);
+            else if (strcmp(token, "sen") == 0) resultado = sin(valor);
+            else if (strcmp(token, "cos") == 0) resultado = cos(valor);
+            else if (strcmp(token, "tan") == 0) resultado = tan(valor);
+            else if (strcmp(token, "log") == 0) resultado = log10(valor);
 
-    float a = atof(aStr);
-    float b = atof(bStr);
-    float resultado;
+            char resultadoStr[64];
+            sprintf(resultadoStr, "%f", resultado);
+            empilha(&pilha, resultadoStr);
+
+        } else if (ehOperador(token[0]) && strlen(token) == 1) {
+            char bStr[64], aStr[64];
+            strcpy(bStr, desempilha(&pilha));
+            strcpy(aStr, desempilha(&pilha));
+
+            float a = atof(aStr);
+            float b = atof(bStr);
+            float resultado;
 
             switch (token[0]) {
                 case '+': resultado = a + b; break;
@@ -297,7 +317,6 @@ float getValorPosFixa(char *StrPosFixa) {
                 default: resultado = 0; break;
             }
 
-            // Converte resultado de volta para string e empilha
             char resultadoStr[64];
             sprintf(resultadoStr, "%f", resultado);
             empilha(&pilha, resultadoStr);
@@ -306,11 +325,9 @@ float getValorPosFixa(char *StrPosFixa) {
         token = strtok(NULL, " ");
     }
 
-    // Resultado final
     if (!pilhaVazia(&pilha)) {
         return atof(desempilha(&pilha));
     }
-
     return 0;
 }
 
