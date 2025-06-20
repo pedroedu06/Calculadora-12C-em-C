@@ -1,4 +1,3 @@
-Expressão infixa: 3 2 4 ^ 1 + 9 - 
-Expressão pós-fixa: 3 2 4 1 ^ 9 + - 
-Valor: -11.00
-Valor (Infixa): -11.00
+Expressão infixa: (9 + (5 * ((2 * 8) + 4)))
+Expressão pós-fixa: 9 5 2 8 * 4 + * +
+Valor: 109.00

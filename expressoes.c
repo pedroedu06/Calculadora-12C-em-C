@@ -51,58 +51,36 @@ char topoChar(PilhaString *p) {
     return 0;
 }
 
-int ehOperadorStr(char *str) {
-    return strcmp(str, "+") == 0 || strcmp(str, "-") == 0 ||
-           strcmp(str, "*") == 0 || strcmp(str, "/") == 0 ||
-           strcmp(str, "%") == 0 || strcmp(str, "^") == 0 ||
-           strcmp(str, "log") == 0 || strcmp(str, "sqrt") == 0 ||
-           strcmp(str, "sen") == 0 || strcmp(str, "cos") == 0 ||
-           strcmp(str, "tan") == 0;
+int precedencia(char *op) {
+    if (op == NULL) return 0;
+    char c = op[0];
+    switch (c) {
+        case '+':
+        case '-':
+            return 1;
+        case '*':
+        case '/':
+        case '%':
+            return 2;
+        case '^':
+            return 3;
+        default:
+            return 0;
+    }
 }
 
-// Função para verificar se o caractere é um operador básico
 int ehOperador(char c) {
     return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';
 }
 
-//precedencia dos operadores
-int precedenciaStr(char *op) {
-    if (strcmp(op, "log") == 0 || strcmp(op, "sqrt") == 0 ||
-        strcmp(op, "sen") == 0 || strcmp(op, "cos") == 0 || strcmp(op, "tan") == 0)
-        return 4;
-
-    return 0;
-}
-int precedencia(char *op) {
-    if (strcmp(op, "^") == 0) return 3;
-    if (strcmp(op, "*") == 0 || strcmp(op, "/") == 0 || strcmp(op, "%") == 0) return 2;
-    if (strcmp(op, "+") == 0 || strcmp(op, "-") == 0) return 1;
-
-    if (strcmp(op, "^") == 0) return 3;
-    if (strcmp(op, "*") == 0 || strcmp(op, "/" ) == 0 || strcmp(op, "%" ) == 0) return 2;
-    if (strcmp(op, "+" ) == 0 || strcmp(op, "-" ) == 0) return 1;
-    return 0;
+int ehFuncao(char *token) {
+    return strcmp(token, "sqrt") == 0 || strcmp(token, "sen") == 0 ||
+           strcmp(token, "cos") == 0 || strcmp(token, "tan") == 0 ||
+           strcmp(token, "log") == 0;
 }
 
-int ehInfixa(char *expr) {
-    // Pode melhorar essa função conforme seu caso, mas básico já ajuda
-    return (strchr(expr, '(') != NULL) || (strchr(expr, ')') != NULL) || 
-           (strchr(expr, '+') != NULL) || (strchr(expr, '-') != NULL) || 
-           (strchr(expr, '*') != NULL) || (strchr(expr, '/') != NULL) || 
-           (strchr(expr, '^') != NULL);
-}
-
-float calculaExpressao(char *expr) {
-    if (ehInfixa(expr)) {
-        char *posfixa = getFormaPosFixa(expr);
-        float resultado = getValorPosFixa(posfixa);
-        // Se getFormaPosFixa alocar memória, free(posfixa);
-        return resultado;
-    } else {
-        return getValorPosFixa(expr);
-    }
-}
-
+// Formata a expressão de entrada, separando números, operadores e funções
+// Exemplo: "3+5*sen(30)" -> "3 + 5
 void formatarExpressao(const char *entradaBruta, char *saidaFormatada) {
     saidaFormatada[0] = '\0';  // Zera a saída
 
@@ -157,24 +135,26 @@ char *getFormaInFixa(char *Str) {
         if (isdigit(token[0]) || (token[0] == '-' && isdigit(token[1]))) {
             empilha(&pilha, token);
         } else if (ehOperador(token[0]) && strlen(token) == 1) {
-            char operando2[TAM_TOKEN], operando1[TAM_TOKEN];
-            strcpy(operando2, desempilha(&pilha));
-            strcpy(operando1, desempilha(&pilha));
+            char *op2 = desempilha(&pilha);
+            char *op1 = desempilha(&pilha);
 
-            char novaExpressao[TAM_TOKEN];
-            snprintf(novaExpressao, TAM_TOKEN, "(%s %s %s)", operando1, token, operando2);
-            empilha(&pilha, novaExpressao);
+            char nova[256];
+            snprintf(nova, sizeof(nova), "(%s %s %s)", op1, token, op2);
+            empilha(&pilha, nova);
+        } else if (ehFuncao(token)) {
+            char *arg = desempilha(&pilha);
+            char nova[256];
+            snprintf(nova, sizeof(nova), "%s(%s)", token, arg);
+            empilha(&pilha, nova);
         }
         token = strtok(NULL, " ");
     }
 
-    // O topo da pilha agora é a expressão infixa final
-    char *resultado = malloc(strlen(pilha.itens[pilha.topo]) + 1);
-    if (resultado != NULL) {
-        strcpy(resultado, pilha.itens[pilha.topo]);
-    }
-    return resultado;
+    char *res = malloc(strlen(pilha.itens[pilha.topo]) + 1);
+    if (res) strcpy(res, pilha.itens[pilha.topo]);
+    return res;
 }
+
 
 
 //forma posfixa
@@ -259,7 +239,8 @@ char *getFormaPosFixa(char *Str) {
 }
 
 
-
+// Calcula o valor da expressão na forma pos-fixa
+// Exemplo: "3 12 4 + *" -> 3 * (12 + 4) = 3 * 16 = 48
 float getValorPosFixa(char *StrPosFixa) {
     PilhaString pilha;
     inicializaPilha(&pilha);
@@ -268,25 +249,35 @@ float getValorPosFixa(char *StrPosFixa) {
     strcpy(expressao, StrPosFixa);
 
     char *token = strtok(expressao, " ");
-
     while (token != NULL) {
         if (isdigit(token[0]) || (token[0] == '-' && isdigit(token[1]))) {
-            empilha(&pilha, token); // número
-        } else if (
-            strcmp(token, "sqrt") == 0 ||
-            strcmp(token, "sen") == 0 ||
-            strcmp(token, "cos") == 0 ||
-            strcmp(token, "tan") == 0 ||
-            strcmp(token, "log") == 0) {
+            empilha(&pilha, token);
+        } else if (ehOperador(token[0]) && strlen(token) == 1) {
+            char *bStr = desempilha(&pilha);
+            char *aStr = desempilha(&pilha);
+            float a = atof(aStr), b = atof(bStr), resultado;
 
-            char valorStr[64];
-            strcpy(valorStr, desempilha(&pilha));
-            float valor = atof(valorStr);
-            if (strcmp(token, "sen") == 0 || strcmp(token, "cos") == 0 || strcmp(token, "tan") == 0) {
-                valor = valor * (M_PI / 180);
+            switch (token[0]) {
+                case '+': resultado = a + b; break;
+                case '-': resultado = a - b; break;
+                case '*': resultado = a * b; break;
+                case '/': resultado = a / b; break;
+                case '%': resultado = (int)a % (int)b; break;
+                case '^': resultado = pow(a, b); break;
+                default: resultado = 0;
             }
 
+            char resultadoStr[64];
+            sprintf(resultadoStr, "%f", resultado);
+            empilha(&pilha, resultadoStr);
+        } else if (ehFuncao(token)) {
+            char *valorStr = desempilha(&pilha);
+            float valor = atof(valorStr);
             float resultado;
+
+            if (strcmp(token, "sen") == 0 || strcmp(token, "cos") == 0 || strcmp(token, "tan") == 0) {
+                valor = valor * M_PI / 180.0;
+            }
 
             if (strcmp(token, "sqrt") == 0) resultado = sqrt(valor);
             else if (strcmp(token, "sen") == 0) resultado = sin(valor);
@@ -297,40 +288,14 @@ float getValorPosFixa(char *StrPosFixa) {
             char resultadoStr[64];
             sprintf(resultadoStr, "%f", resultado);
             empilha(&pilha, resultadoStr);
-
-        } else if (ehOperador(token[0]) && strlen(token) == 1) {
-            char bStr[64], aStr[64];
-            strcpy(bStr, desempilha(&pilha));
-            strcpy(aStr, desempilha(&pilha));
-
-            float a = atof(aStr);
-            float b = atof(bStr);
-            float resultado;
-
-            switch (token[0]) {
-                case '+': resultado = a + b; break;
-                case '-': resultado = a - b; break;
-                case '*': resultado = a * b; break;
-                case '/': resultado = a / b; break;
-                case '%': resultado = (int)a % (int)b; break;
-                case '^': resultado = pow(a, b); break;
-                default: resultado = 0; break;
-            }
-
-            char resultadoStr[64];
-            sprintf(resultadoStr, "%f", resultado);
-            empilha(&pilha, resultadoStr);
         }
-
         token = strtok(NULL, " ");
     }
 
-    if (!pilhaVazia(&pilha)) {
-        return atof(desempilha(&pilha));
-    }
-    return 0;
+    return atof(desempilha(&pilha));
 }
-
+// Calcula o valor da expressão na forma infixa
+// Exemplo: "3 * (12 + 4)" -> 3 * 16 = 48
 float getValorInFixa(char *StrInFixa) {
     char *posfixa = getFormaPosFixa(StrInFixa);
     float resultado = getValorPosFixa(posfixa);
