@@ -23,21 +23,21 @@ Esse projeto e voltado para minha formacao academica.
 # 3 Teste
 
 **IMPORTANTE !**
-A entrada das operacoes deve ser feita no modo Infixo e com espacos em cada operacao ou parenteses, caso nao haja o codigo da erro.
+A entrada das operacoes deve ser feita no modo posfixo.
 Todos os resultados sai em numero float, e sao mostrados no resultado.txt.
 
 Fiz 8 testes de diferentes tipos.
 
-## 3.1 Aplicando testes
+## Aplicando testes
 
-**Teste 01**: Entrada `( 3 + 4 ) * 5` Saidas: infixo:`( 3 + 4 ) * 5`, pos-fixa:`3 4 + 5 *`, Resultado:`35.00`;</br>
-**Teste 02**: Entrada `7 * 2 + 4` Saidas: infixo:`7 * 2 + 4`, pos-fixa:`7 2 * 4 +`, Resultado:`18.00`;</br>
-**Teste 03**: Entrada `8 + ( 5 * ( 2 + 4 ) )` Saidas: infixo:`8 + ( 5 * ( 2 + 4 ) ) `, pos-fixa:`8 5 2 4 + * +`, Resultado:`38.00`;</br>
-**Teste 04**: Entrada `( 6 / 2 + 3 ) * 4` Saidas: infixo:`( 6 / 2 + 3 ) * 4 `, pos-fixa:`6 2 / 3 + 4 *`, Resultado:`24.00`;</br>
-**Teste 05**: Entrada `9 + ( 5 * ( 2 + 8 * 4 ) )` Saidas: infixo:`9 + ( 5 * ( 2 + 8 * 4 ) )`, pos-fixa:`9 5 2 8 4 * + * +`, Resultado:`179` (o calculo foi feito com a forma infixa);</br>
-**Teste 06**: Entrada `( log 10 ) ^ 3 + 2 ` Saidas: infixo:`( log 10 ) ^ 3 + 2 `, pos-fixa:`10 log 3 ^ 2 + `, Resultado:`3.00`;</br>
-**Teste 07**: Entrada `( 45 + 60 ) * cos ( 30 )` Saidas: infixo:`( 45 + 60 ) * cos ( 30 )`, pos-fixa:`45 60 + 30 cos *`, Resultado:`90.93`;</br>
-**Teste 08**: Entrada `sen ( 45 ) ^ 2 + 0.5 ` Saidas: infixo:`sen ( 45 ) ^ 2 + 0.5 `, pos-fixa:`45 sen 2 ^ 0.5 +`, Resultado:`1.00`;</br>
+**3.1 - Teste 01**: Entrada `3 4 + 5 *` Saidas: infixo:`( 3 + 4 ) * 5`, pos-fixa:`3 4 + 5 *`, Resultado:`35.00`;</br>
+**3.2 - Teste 02**: Entrada `7 2 * 4 +` Saidas: infixo:`7 * 2 + 4`, pos-fixa:`7 2 * 4 +`, Resultado:`18.00`;</br>
+**3.3 -Teste 03**: Entrada `8 5 2 4 + * +` Saidas: infixo:`8 + ( 5 * ( 2 + 4 ) ) `, pos-fixa:`8 5 2 4 + * +`, Resultado:`38.00`;</br>
+**3.4 -Teste 04**: Entrada `6 2 / 3 + 4 *` Saidas: infixo:`( 6 / 2 + 3 ) * 4 `, pos-fixa:`6 2 / 3 + 4 *`, Resultado:`24.00`;</br>
+**3.5 -Teste 05**: Entrada `9 5 2 8 4 * + * +` Saidas: infixo:`9 + ( 5 * ( 2 + 8 * 4 ) )`, pos-fixa:`9 5 2 8 4 * + * +`, Resultado:`109`</br>
+**3.6 -Teste 06**: Entrada `10 log 3 ^ 2 +` Saidas: infixo:`( log 10 ) ^ 3 + 2 `, pos-fixa:`10 log 3 ^ 2 + `, Resultado:`3.00`;</br>
+**3.7 -Teste 07**: Entrada `45 60 + 30 cos *` Saidas: infixo:`( 45 + 60 ) * cos ( 30 )`, pos-fixa:`45 60 + 30 cos *`, Resultado:`90.93`;</br>
+**3.8 -Teste 08**: Entrada `45 sen 2 ^ 0.5 +` Saidas: infixo:`sen ( 45 ) ^ 2 + 0.5 `, pos-fixa:`45 sen 2 ^ 0.5 +`, Resultado:`1.00`;</br>
 
 # 4 Conclusão
 
